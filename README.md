@@ -1,4 +1,4 @@
-# Nexus Diposit Widget
+# Nexus Deposit Widget
 
 A simple, modern and animated widget for Avail Nexus. [live link](https://nexus-deposit.vercel.app/)
 
