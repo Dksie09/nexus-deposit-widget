@@ -91,7 +91,7 @@ function DepositButton() {
             </div>
 
             {/* Tab Content */}
-            <div className="mt-6 flex-1">
+            <div className="mt-6 flex-1 overflow-y-auto">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
@@ -99,6 +99,7 @@ function DepositButton() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
+                  className="h-full"
                 >
                   {activeTab === "wallet" && <WalletContent />}
                   {activeTab === "transfer" && <TransferQRContent />}
@@ -108,8 +109,6 @@ function DepositButton() {
                 </motion.div>
               </AnimatePresence>
             </div>
-
-            {/* Confirm Button and Powered by Avail - Fixed at bottom */}
           </motion.div>
         )}
       </AnimatePresence>

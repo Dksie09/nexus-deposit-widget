@@ -12,11 +12,11 @@ interface PlaygroundProps {
 
 function Playground({ isWalletConnected }: PlaygroundProps) {
   return (
-    <div className="relative w-full h-96 mx-auto border mt-5 border-white/10 flex items-center justify-center">
+    <div className="relative w-full h-96 mx-auto border mt-5 border-white/20 flex items-center justify-center">
       <div className="absolute inset-0 grid grid-cols-30 grid-rows-12 p-5">
         {Array.from({ length: 390 }).map((_, index) => (
           <div key={index} className="flex items-center justify-center">
-            <p className="text-2xl text-neutral-400/10 transition-all duration-0 hover:text-white/20 cursor-default hover:delay-0 [transition-delay:0.5s] ease-in-out hover:scale-120">
+            <p className="text-2xl text-neutral-400/20 transition-all duration-0 hover:text-white/30 cursor-default hover:delay-0 [transition-delay:0.5s] ease-in-out hover:scale-120">
               +
             </p>
           </div>
