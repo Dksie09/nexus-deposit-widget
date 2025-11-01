@@ -1,12 +1,10 @@
 # Nexus Diposit Widget
 
-A simple, modern and animated widget for Avail Nexus.
+A simple, modern and animated widget for Avail Nexus. [live link](https://nexus-deposit.vercel.app/)
 
 ## Demo
 
-https://github.com/user-attachments/assets/your-video-here.mp4
-
-> Replace with your demo video URL
+https://github.com/user-attachments/assets/81dd3119-7ff6-4c0c-bf8f-2057fdabf85f
 
 ## Tech Stack
 
