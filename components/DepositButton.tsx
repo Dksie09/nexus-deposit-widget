@@ -16,17 +16,20 @@ import { DissolveFilter } from "./shared/DissolveFilter";
 
 function DepositButton() {
   const ref = useRef<HTMLDivElement>(null);
-  
-  const { isOpen, isClosing, allowMorphBack, open, close, setAllowMorphBack } = useModal();
-  const { activeTab, direction, targetHeight, handleTabChange, variants } = useTabAnimation();
-  const { cardRef, filterRef, noiseRef, animateDissolve } = useDissolveAnimation({
-    onComplete: () => {
-      close();
-      setTimeout(() => {
-        setAllowMorphBack(true);
-      }, 100);
-    },
-  });
+
+  const { isOpen, isClosing, allowMorphBack, open, close, setAllowMorphBack } =
+    useModal();
+  const { activeTab, direction, targetHeight, handleTabChange, variants } =
+    useTabAnimation();
+  const { cardRef, filterRef, noiseRef, animateDissolve } =
+    useDissolveAnimation({
+      onComplete: () => {
+        close();
+        setTimeout(() => {
+          setAllowMorphBack(true);
+        }, 100);
+      },
+    });
 
   const handleOpen = () => {
     // Reset filter before opening to ensure clean morph animation
@@ -107,7 +110,16 @@ function DepositButton() {
                   height: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }, // ease-out-quad
                 }}
               >
-                <div className="flex items-start justify-between ">
+                <motion.div
+                  className="flex items-start justify-between "
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 0.15,
+                    duration: 0.25,
+                    ease: [0.25, 0.46, 0.45, 0.94], // ease-out-quad
+                  }}
+                >
                   <div className="flex items-center gap-1 mb-2">
                     <motion.span
                       layoutId={isClosing ? undefined : "deposit-title"}
@@ -123,9 +135,18 @@ function DepositButton() {
                   >
                     <XIcon className="w-4 h-4" />
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="relative w-full border-b border-white/10">
+                <motion.div
+                  className="relative w-full border-b border-white/10"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 0.2,
+                    duration: 0.25,
+                    ease: [0.25, 0.46, 0.45, 0.94], // ease-out-quad
+                  }}
+                >
                   <div className="flex items-center justify-between">
                     {DEPOSIT_TABS.map((tab) => (
                       <button
@@ -152,9 +173,18 @@ function DepositButton() {
                       </button>
                     ))}
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="mt-3 relative overflow-hidden">
+                <motion.div
+                  className="mt-3 relative overflow-hidden"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    delay: 0.25,
+                    duration: 0.3,
+                    ease: [0.25, 0.46, 0.45, 0.94], // ease-out-quad
+                  }}
+                >
                   <AnimatePresence
                     mode="popLayout"
                     initial={false}
@@ -173,7 +203,7 @@ function DepositButton() {
                       {activeTab === "fiat" && <FiatContent />}
                     </motion.div>
                   </AnimatePresence>
-                </div>
+                </motion.div>
               </motion.div>
             </MotionConfig>
           </div>,
