@@ -64,6 +64,7 @@ export default function AmountSelector() {
         onChange={handleAmountChange}
         className="text-4xl font-medium bg-transparent border-none outline-none w-32 focus:ring-0 p-0 text-white"
         placeholder="0.00"
+        autoFocus
       />
 
       <div className="relative w-fit">

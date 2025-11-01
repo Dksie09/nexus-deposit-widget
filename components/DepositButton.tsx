@@ -7,6 +7,7 @@ import { ChevronDownIcon, ChevronRight } from "lucide-react";
 import AmountSelector from "./AmountSelector";
 import WalletContent from "./WalletContent";
 import TransferQRContent from "./TransferQRContent";
+import FiatContent from "./FiatContent";
 
 function DepositButton() {
   const [open, setOpen] = useState(false);
@@ -16,19 +17,28 @@ function DepositButton() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      
+
       // Use elementFromPoint to get the actual element at click coordinates
       // This works around Radix Select's event manipulation
-      const actualElement = document.elementFromPoint(event.clientX, event.clientY);
+      const actualElement = document.elementFromPoint(
+        event.clientX,
+        event.clientY
+      );
       const elementToCheck = actualElement || target;
-      
+
       // Check if click is outside the deposit card
       if (ref.current && !ref.current.contains(elementToCheck)) {
         // Check if the actual element is select-related
-        const isSelectContent = elementToCheck.closest('[data-slot="select-content"]');
-        const isSelectItem = elementToCheck.closest('[data-slot="select-item"]');
-        const isSelectTrigger = elementToCheck.closest('[data-slot="select-trigger"]');
-        
+        const isSelectContent = elementToCheck.closest(
+          '[data-slot="select-content"]'
+        );
+        const isSelectItem = elementToCheck.closest(
+          '[data-slot="select-item"]'
+        );
+        const isSelectTrigger = elementToCheck.closest(
+          '[data-slot="select-trigger"]'
+        );
+
         // Don't close if clicking on select-related elements
         if (!isSelectContent && !isSelectItem && !isSelectTrigger) {
           setOpen(false);
@@ -63,7 +73,7 @@ function DepositButton() {
         ) : (
           <motion.div
             layoutId="deposit-wrapper"
-            className="w-96 h-[500px] border border-white/50 bg-background shadow-xs z-50 py-4 px-4 flex flex-col"
+            className="w-96 h-[490px] border border-white/50 bg-background shadow-xs z-50 py-4 px-4 flex flex-col"
             style={{ borderRadius: 12 }}
           >
             <div className="flex items-center justify-between gap-1 mb-2">
@@ -107,7 +117,7 @@ function DepositButton() {
             </div>
 
             {/* Tab Content */}
-            <div className="mt-6 flex-1 overflow-y-auto">
+            <div className="mt-3 flex-1 overflow-y-auto">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
@@ -119,9 +129,7 @@ function DepositButton() {
                 >
                   {activeTab === "wallet" && <WalletContent />}
                   {activeTab === "transfer" && <TransferQRContent />}
-                  {activeTab === "fiat" && (
-                    <p className="text-sm text-white/50">Fiat content here</p>
-                  )}
+                  {activeTab === "fiat" && <FiatContent />}
                 </motion.div>
               </AnimatePresence>
             </div>
