@@ -51,3 +51,9 @@ nexus-widget-ui/
 ## License
 
 MIT License - [LICENSE](LICENSE)
+
+.
+.
+.
+
+ps I had fun working on this assignment, thnx :)
