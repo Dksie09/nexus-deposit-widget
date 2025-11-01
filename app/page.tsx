@@ -3,15 +3,31 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Playground from "@/components/Playground";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
 export default function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check if user has visited before
+  useEffect(() => {
+    const hasVisitedBefore = localStorage.getItem("hasConnectedWallet");
+    if (hasVisitedBefore === "true") {
+      setIsWalletConnected(true);
+    }
+    setIsLoading(false);
+  }, []);
 
   const handleConnectWallet = () => {
     setIsWalletConnected(true);
+    localStorage.setItem("hasConnectedWallet", "true");
   };
+
+  // Don't render anything until we've checked localStorage
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col min-h-screen p-10 font-sans max-w-3xl mx-auto">
@@ -28,6 +44,7 @@ export default function Home() {
         <AnimatePresence mode="popLayout">
           {!isWalletConnected && (
             <motion.div
+              className="relative"
               exit={{ opacity: 0, y: -30 }}
               transition={{ type: "spring", bounce: 0, duration: 0.3 }}
               layout
@@ -35,21 +52,23 @@ export default function Home() {
               <Button className="mt-6" onClick={handleConnectWallet}>
                 Connect Wallet
               </Button>
+              <img
+                src="/begin.svg"
+                alt="Deposit"
+                className="absolute -bottom-26 left-28 scale-70"
+              />
             </motion.div>
           )}
         </AnimatePresence>
-        {/* <img
-          src="/begin.svg"
-          alt="Deposit"
-          className="absolute -bottom-26 left-28 scale-70"
-        /> */}
       </div>
-      <motion.div
-        layout
-        transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-      >
-        <Playground isWalletConnected={isWalletConnected} />
-      </motion.div>
+      {isWalletConnected && (
+        <motion.div
+          layout
+          transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+        >
+          <Playground isWalletConnected={isWalletConnected} />
+        </motion.div>
+      )}
     </div>
   );
 }
