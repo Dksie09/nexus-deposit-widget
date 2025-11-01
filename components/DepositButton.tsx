@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Button } from "./ui/button";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { createPortal } from "react-dom";
 import WalletContent from "./WalletContent";
 import TransferQRContent from "./TransferQRContent";
@@ -11,22 +11,22 @@ import { XIcon } from "lucide-react";
 import { DEPOSIT_TABS } from "@/constants";
 import { useModal } from "@/hooks/useModal";
 import { useDissolveAnimation } from "@/hooks/useDissolveAnimation";
+import { useTabAnimation } from "@/hooks/useTabAnimation";
+import { DissolveFilter } from "./shared/DissolveFilter";
 
 function DepositButton() {
-  const [activeTab, setActiveTab] = useState("wallet");
   const ref = useRef<HTMLDivElement>(null);
-
-  const { isOpen, isClosing, allowMorphBack, open, close, setAllowMorphBack } =
-    useModal();
-  const { cardRef, filterRef, noiseRef, animateDissolve } =
-    useDissolveAnimation({
-      onComplete: () => {
-        close();
-        setTimeout(() => {
-          setAllowMorphBack(true);
-        }, 100);
-      },
-    });
+  
+  const { isOpen, isClosing, allowMorphBack, open, close, setAllowMorphBack } = useModal();
+  const { activeTab, direction, targetHeight, handleTabChange, variants } = useTabAnimation();
+  const { cardRef, filterRef, noiseRef, animateDissolve } = useDissolveAnimation({
+    onComplete: () => {
+      close();
+      setTimeout(() => {
+        setAllowMorphBack(true);
+      }, 100);
+    },
+  });
 
   const handleOpen = () => {
     // Reset filter before opening to ensure clean morph animation
@@ -47,49 +47,7 @@ function DepositButton() {
 
   return (
     <>
-      {/* SVG Filter for Dissolve Effect */}
-      <svg xmlns="http://www.w3.org/2000/svg" style={{ display: "none" }}>
-        <defs>
-          <filter
-            id="card-dissolve-filter"
-            x="-200%"
-            y="-200%"
-            width="500%"
-            height="500%"
-            colorInterpolationFilters="sRGB"
-          >
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.004"
-              numOctaves={1}
-              result="bigNoise"
-              ref={noiseRef}
-            />
-            <feComponentTransfer in="bigNoise" result="bigNoiseAdjusted">
-              <feFuncR type="linear" slope="5" intercept="-2" />
-              <feFuncG type="linear" slope="5" intercept="-2" />
-            </feComponentTransfer>
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="1"
-              numOctaves={1}
-              result="fineNoise"
-            />
-            <feMerge result="mergedNoise">
-              <feMergeNode in="bigNoiseAdjusted" />
-              <feMergeNode in="fineNoise" />
-            </feMerge>
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="mergedNoise"
-              scale="0"
-              xChannelSelector="R"
-              yChannelSelector="G"
-              ref={filterRef}
-            />
-          </filter>
-        </defs>
-      </svg>
+      <DissolveFilter filterRef={filterRef} noiseRef={noiseRef} />
 
       <div ref={ref} className="flex items-center justify-center">
         <AnimatePresence mode="wait">
@@ -128,84 +86,96 @@ function DepositButton() {
               onClick={handleClose}
             />
 
-            <motion.div
-              layoutId={isClosing ? undefined : "deposit-wrapper"}
-              className="w-96 h-[490px] border border-white/50 bg-background shadow-xs py-4 px-4 flex flex-col relative z-10"
-              style={{
-                borderRadius: 12,
-                filter: "url(#card-dissolve-filter)",
-                WebkitFilter: "url(#card-dissolve-filter)",
-                willChange: "transform, opacity",
-              }}
-              onClick={(e) => e.stopPropagation()}
-              ref={cardRef}
+            <MotionConfig
+              transition={{ duration: 0.5, type: "spring", bounce: 0 }}
             >
-              <div className="flex items-start justify-between ">
-                <div className="flex items-center gap-1 mb-2">
-                  <motion.span
-                    layoutId={isClosing ? undefined : "deposit-title"}
-                    className="text-sm font-medium"
-                  >
-                    Deposit
-                  </motion.span>
-                  <span className="text-xs text-white/50">(USDC)</span>
-                </div>
-                <div
-                  className="absolute top-3 right-4 text-white/50 hover:text-white/80 cursor-pointer"
-                  onClick={handleClose}
-                >
-                  <XIcon className="w-4 h-4" />
-                </div>
-
-                {/* <span className="text-xs text-white/50">0x32..6789</span> */}
-              </div>
-
-              <div className="relative w-full border-b border-white/10">
-                <div className="flex items-center justify-between">
-                  {DEPOSIT_TABS.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`relative flex-1 text-center py-2 text-sm transition-colors duration-200 ${
-                        activeTab === tab.id
-                          ? "text-white"
-                          : "text-white/40 hover:text-white/60"
-                      }`}
+              <motion.div
+                layoutId={isClosing ? undefined : "deposit-wrapper"}
+                className="w-96 border border-white/50 bg-background shadow-xs py-4 px-4 flex flex-col relative z-10"
+                style={{
+                  borderRadius: 12,
+                  filter: "url(#card-dissolve-filter)",
+                  WebkitFilter: "url(#card-dissolve-filter)",
+                  willChange: "transform, opacity",
+                }}
+                onClick={(e) => e.stopPropagation()}
+                ref={cardRef}
+                animate={{
+                  height: targetHeight,
+                }}
+                transition={{
+                  height: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }, // ease-out-quad
+                }}
+              >
+                <div className="flex items-start justify-between ">
+                  <div className="flex items-center gap-1 mb-2">
+                    <motion.span
+                      layoutId={isClosing ? undefined : "deposit-title"}
+                      className="text-sm font-medium"
                     >
-                      {tab.label}
-                      {activeTab === tab.id && (
-                        <motion.div
-                          layoutId="active-tab"
-                          className="absolute bottom-0 left-0 right-0 h-[2px] bg-white"
-                          transition={{
-                            type: "spring",
-                            bounce: 0.2,
-                            duration: 0.6,
-                          }}
-                        />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-3 flex-1 overflow-y-auto">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="h-full"
+                      Deposit
+                    </motion.span>
+                    <span className="text-xs text-white/50">(USDC)</span>
+                  </div>
+                  <div
+                    className="absolute top-3 right-4 text-white/50 hover:text-white/80 cursor-pointer"
+                    onClick={handleClose}
                   >
-                    {activeTab === "wallet" && <WalletContent />}
-                    {activeTab === "transfer" && <TransferQRContent />}
-                    {activeTab === "fiat" && <FiatContent />}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </motion.div>
+                    <XIcon className="w-4 h-4" />
+                  </div>
+                </div>
+
+                <div className="relative w-full border-b border-white/10">
+                  <div className="flex items-center justify-between">
+                    {DEPOSIT_TABS.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => handleTabChange(tab.id)}
+                        className={`relative flex-1 text-center py-2 text-sm transition-colors duration-200 ${
+                          activeTab === tab.id
+                            ? "text-white"
+                            : "text-white/40 hover:text-white/60"
+                        }`}
+                      >
+                        {tab.label}
+                        {activeTab === tab.id && (
+                          <motion.div
+                            layoutId="active-tab"
+                            className="absolute bottom-0 left-0 right-0 h-[2px] bg-white"
+                            transition={{
+                              type: "spring",
+                              bounce: 0.2,
+                              duration: 0.6,
+                            }}
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-3 relative overflow-hidden">
+                  <AnimatePresence
+                    mode="popLayout"
+                    initial={false}
+                    custom={direction}
+                  >
+                    <motion.div
+                      key={activeTab}
+                      variants={variants}
+                      initial="initial"
+                      animate="active"
+                      exit="exit"
+                      custom={direction}
+                    >
+                      {activeTab === "wallet" && <WalletContent />}
+                      {activeTab === "transfer" && <TransferQRContent />}
+                      {activeTab === "fiat" && <FiatContent />}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            </MotionConfig>
           </div>,
           document.body
         )}

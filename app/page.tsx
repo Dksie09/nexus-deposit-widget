@@ -68,7 +68,7 @@ export default function Home() {
         </motion.div>
       )}
       {isWalletConnected && (
-        <div className="my-10 ml-4">
+        <div className="my-11 ml-4">
           <p className="text-sm text-white/50">
             Designed by{" "}
             <a
