@@ -15,8 +15,24 @@ function DepositButton() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
+      const target = event.target as Element;
+      
+      // Use elementFromPoint to get the actual element at click coordinates
+      // This works around Radix Select's event manipulation
+      const actualElement = document.elementFromPoint(event.clientX, event.clientY);
+      const elementToCheck = actualElement || target;
+      
+      // Check if click is outside the deposit card
+      if (ref.current && !ref.current.contains(elementToCheck)) {
+        // Check if the actual element is select-related
+        const isSelectContent = elementToCheck.closest('[data-slot="select-content"]');
+        const isSelectItem = elementToCheck.closest('[data-slot="select-item"]');
+        const isSelectTrigger = elementToCheck.closest('[data-slot="select-trigger"]');
+        
+        // Don't close if clicking on select-related elements
+        if (!isSelectContent && !isSelectItem && !isSelectTrigger) {
+          setOpen(false);
+        }
       }
     };
 
