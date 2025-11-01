@@ -33,15 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
       >
-        <div className="relative">
-          <div className="relative mx-auto max-w-screen-xl">
-            <div className="absolute left-8 border-white/10 top-0 bottom-0 border-l h-full overflow-hidden"></div>
-
-            <div className="absolute right-8 top-0 bottom-0 border-l border-white/10 h-full overflow-hidden"></div>
-
-            <div className="px-[34px]">{children}</div>
-          </div>
-        </div>
+        {children}
       </body>
     </html>
   );
