@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { Copy, Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useClipboard } from "@/hooks/useClipboard";
 
 export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -17,21 +18,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     { className, type = "text", size = "default", showCopy = false, ...props },
     ref
   ) => {
-    const [isCopied, setIsCopied] = React.useState(false);
+    const { isCopied, copyToClipboard } = useClipboard();
     const internalRef = React.useRef<HTMLInputElement>(null);
     const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef;
 
     const handleCopy = async () => {
       const input = inputRef.current;
       if (!input?.value) return;
-
-      try {
-        await navigator.clipboard.writeText(input.value);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      } catch (err) {
-        console.error("Failed to copy:", err);
-      }
+      await copyToClipboard(input.value);
     };
 
     if (!showCopy) {

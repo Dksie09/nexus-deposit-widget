@@ -4,24 +4,19 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
+import { SUPPORTED_FIAT_CURRENCIES } from "@/constants";
+import { useAmountInput } from "@/hooks/useAmountInput";
+import { TransactionSummary } from "./shared/TransactionSummary";
+import { BrandFooter } from "./shared/BrandFooter";
 
 function FiatContent() {
   const [asset, setAsset] = useState("USD");
-  const [amount, setAmount] = useState("2.50");
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Allow empty string, numbers, and decimal points
-    if (value === "" || /^\d*\.?\d*$/.test(value)) {
-      setAmount(value);
-    }
-  };
+  const { amount, handleAmountChange } = useAmountInput("2.50");
 
   const handleAssetChange = (value: string) => {
     setAsset(value);
@@ -39,9 +34,11 @@ function FiatContent() {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="USD">USD</SelectItem>
-                <SelectItem value="inr">INR</SelectItem>
-                <SelectItem value="eur">EUR</SelectItem>
+                {SUPPORTED_FIAT_CURRENCIES.map((currency) => (
+                  <SelectItem key={currency.value} value={currency.value}>
+                    {currency.label}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -56,52 +53,13 @@ function FiatContent() {
             autoFocus
           />
         </div>
-        <div className="flex flex-col gap-3">
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col w-40">
-              <h3 className="text-sm font-medium">You spend</h3>
-              {/* <p className="text-xs text-white/50">1 asset on 3 chains</p> */}
-            </div>
-            <div className="flex flex-col items-end">
-              <h3 className="text-sm font-medium">$10.15</h3>
-              {/* <button
-                className="text-xs text-white/50 flex items-center gap-1 transition-colors duration-200 ease hover:text-white/80 group"
-                onClick={() => console.log("View sources clicked")}
-              >
-                View Sources
-                <ChevronRight className="w-2 h-2 text-white/50 transition-all duration-200 ease group-hover:text-white/80 group-hover:translate-x-0.5 relative" />
-              </button> */}
-            </div>
-          </div>
-
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col w-40">
-              <h3 className="text-sm font-medium">You receive</h3>
-            </div>
-            <div className="flex flex-col items-end">
-              <h3 className="text-sm font-medium">10 USDC</h3>
-              {/* <p className="text-xs text-white/50 flex items-center gap-1">
-                On hyperliquid perps
-              </p> */}
-            </div>
-          </div>
-
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col w-40">
-              <h3 className="text-sm font-medium">Total Fees</h3>
-            </div>
-            <div className="flex flex-col items-end">
-              <h3 className="text-sm font-medium">$0.15</h3>
-              {/* <button
-                className="text-xs text-white/50 flex items-center gap-1 transition-colors duration-200 ease hover:text-white/80 group"
-                onClick={() => console.log("View breakdown clicked")}
-              >
-                View breakdown
-                <ChevronRight className="w-2 h-2 text-white/50 transition-all duration-200 ease group-hover:text-white/80 group-hover:translate-x-0.5 relative" />
-              </button> */}
-            </div>
-          </div>
-        </div>
+        <TransactionSummary
+          spendAmount="$10.15"
+          receiveAmount="10 USDC"
+          feeAmount="$0.15"
+          showViewSources={false}
+          showViewBreakdown={false}
+        />
       </div>
       <div className="flex flex-col gap-2">
         <Button className="w-full relative overflow-hidden group">
@@ -112,9 +70,7 @@ function FiatContent() {
             <ArrowRight className="w-4 h-4 col-start-1 row-start-1 -translate-x-full opacity-0 transition-all duration-200 ease-in-out group-hover:translate-x-0 group-hover:opacity-100" />
           </span>
         </Button>
-        <div className="pt-4 border-t border-white/10">
-          <p className="text-xs text-white/40 text-center">powered by avail</p>
-        </div>
+        <BrandFooter />
       </div>
     </div>
   );

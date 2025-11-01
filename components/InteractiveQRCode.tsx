@@ -18,7 +18,6 @@ export function InteractiveQRCode() {
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastHoverTimeRef = useRef<number>(0);
 
-  // Parse SVG and extract interactive elements
   useEffect(() => {
     fetch("/qr-code.svg")
       .then((res) => res.text())
@@ -60,12 +59,6 @@ export function InteractiveQRCode() {
           }
         });
 
-        console.log("[v0] Total circles extracted:", extractedCircles.length);
-        console.log(
-          "[v0] Corner square paths found:",
-          cornerSquarePaths.length
-        );
-
         pathsWithCircles.forEach((path) => path.remove());
 
         if (svgRef.current) {
@@ -87,7 +80,6 @@ export function InteractiveQRCode() {
 
           cornerSquarePaths.forEach((path) => {
             const d = path.getAttribute("d") || "";
-            // Parse rounded rectangles: M x y h width a... v height...
             const rectPattern =
               /M([\d.]+)\s+([\d.]+)h([\d.]+)[^Mz]*?v([\d.]+)/g;
             let match;
@@ -160,28 +152,26 @@ export function InteractiveQRCode() {
               });
             });
 
-            console.log("[v0] Total interactive shapes:", allShapes.length);
             setShapes(allShapes);
           }, 50);
 
           return () => clearTimeout(timer);
         }
       })
-      .catch((err) => console.error("[v0] Error loading SVG:", err));
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     const animate = () => {
       const now = Date.now();
-      const fadeTime = 4000; // Increased trail fade time from 2 seconds to 4 seconds for longer sustain
+      const fadeTime = 4000;
       const timeSinceLastHover = now - lastHoverTimeRef.current;
-      const hoverCooldown = 1000; // Wait 1 second after hover before starting ambient effect
+      const hoverCooldown = 1000;
 
       shapes.forEach((shapeData) => {
         const timeSinceLastPurple = now - shapeData.lastPurpleTime;
 
         if (timeSinceLastPurple < fadeTime) {
-          // Fade from current color to black (hover effect)
           const fadeRatio = timeSinceLastPurple / fadeTime;
           const currentMatch = shapeData.currentColor.match(
             /rgb$$(\d+), (\d+), (\d+)$$/
@@ -201,19 +191,18 @@ export function InteractiveQRCode() {
             shapeData.element.setAttribute("fill", `rgb(${r}, ${g}, ${b})`);
           }
         } else if (timeSinceLastHover > hoverCooldown) {
-          // Apply ambient wave effect when not hovering
-          const waveSpeed = 0.0008; // Slow wave movement
-          const waveX = 15.5 + Math.sin(now * waveSpeed) * 10; // Move horizontally across QR code
-          const waveY = 15.5 + Math.cos(now * waveSpeed * 0.7) * 8; // Move vertically with different phase
+          const waveSpeed = 0.0008;
+          const waveX = 15.5 + Math.sin(now * waveSpeed) * 10;
+          const waveY = 15.5 + Math.cos(now * waveSpeed * 0.7) * 8;
 
           const dx = shapeData.bounds.x - waveX;
           const dy = shapeData.bounds.y - waveY;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          const ambientRadius = 8; // Subtle effect radius
+          const ambientRadius = 8;
           if (distance < ambientRadius) {
             const ratio = 1 - distance / ambientRadius;
-            const intensity = Math.pow(ratio, 3) * 0.3; // Very subtle (30% max intensity)
+            const intensity = Math.pow(ratio, 3) * 0.3;
 
             const r = Math.round(20 * intensity);
             const g = Math.round(40 * intensity);
@@ -252,8 +241,8 @@ export function InteractiveQRCode() {
     const y = ((e.clientY - rect.top) / rect.height) * 31;
 
     const now = Date.now();
-    lastHoverTimeRef.current = now; // Track last hover time
-    const maxDistance = 12; // Increased hover radius from 8 to 12 units for bigger effect area
+    lastHoverTimeRef.current = now;
+    const maxDistance = 12;
 
     shapes.forEach((shapeData) => {
       const dx = x - shapeData.bounds.x;
@@ -279,10 +268,9 @@ export function InteractiveQRCode() {
     const ratio = 1 - distance / maxDistance;
     const intensity = Math.pow(ratio, 2);
 
-    // Metallic blue uses cyan highlights for shine effect
-    const r = Math.round(70 * intensity); // Slight red for depth
-    const g = Math.round(130 * intensity); // Medium green for cyan tint
-    const b = Math.round(200 * intensity); // Full blue for base color
+    const r = Math.round(70 * intensity);
+    const g = Math.round(130 * intensity);
+    const b = Math.round(200 * intensity);
 
     return `rgb(${r}, ${g}, ${b})`;
   };

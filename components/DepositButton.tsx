@@ -7,85 +7,27 @@ import { createPortal } from "react-dom";
 import WalletContent from "./WalletContent";
 import TransferQRContent from "./TransferQRContent";
 import FiatContent from "./FiatContent";
+import { XIcon } from "lucide-react";
+import { DEPOSIT_TABS } from "@/constants";
+import { useModal } from "@/hooks/useModal";
+import { useDissolveAnimation } from "@/hooks/useDissolveAnimation";
 
 function DepositButton() {
-  const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("wallet");
-  const [isClosing, setIsClosing] = useState(false);
-  const [allowMorphBack, setAllowMorphBack] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const filterRef = useRef<SVGFEDisplacementMapElement>(null);
-  const noiseRef = useRef<SVGFETurbulenceElement>(null);
-
-  const tabs = [
-    { id: "wallet", label: "Wallet" },
-    { id: "transfer", label: "Transfer QR" },
-    { id: "fiat", label: "Fiat" },
-  ];
-
-  const animateDissolve = () => {
-    console.log("🔥 DISSOLVE START", { isClosing, allowMorphBack, open });
-
-    if (!cardRef.current || !filterRef.current || !noiseRef.current) {
-      setOpen(false);
-      return;
+  
+  const { isOpen, isClosing, allowMorphBack, open, close, setAllowMorphBack } = useModal();
+  const { cardRef, filterRef, noiseRef, animateDissolve } = useDissolveAnimation({
+    onComplete: () => {
+      close();
+      setTimeout(() => {
+        setAllowMorphBack(true);
+      }, 100);
     }
-
-    setIsClosing(true);
-    setAllowMorphBack(false); // Disable morph-back animation
-    console.log("🔥 Set isClosing=true, allowMorphBack=false");
-
-    const start = performance.now();
-    const duration = 800;
-    const maxScale = 2000;
-    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // ease-out-cubic
-
-    // Randomize noise pattern for variation
-    noiseRef.current.setAttribute(
-      "seed",
-      String(Math.floor(Math.random() * 1000))
-    );
-
-    const step = (now: number) => {
-      const elapsed = now - start;
-      const t = Math.min(elapsed / duration, 1);
-      const e = ease(t);
-
-      if (filterRef.current && cardRef.current) {
-        filterRef.current.setAttribute("scale", String(e * maxScale));
-        cardRef.current.style.transform = `scale(${1 + 0.05 * e})`;
-        cardRef.current.style.opacity =
-          t < 0.5 ? "1" : String(1 - (t - 0.5) / 0.5);
-      }
-
-      if (t < 1) {
-        requestAnimationFrame(step);
-      } else {
-        console.log("🔥 DISSOLVE COMPLETE - about to close");
-        // Animation complete, close the modal
-        if (cardRef.current && filterRef.current) {
-          cardRef.current.style.transform = "scale(1)";
-          cardRef.current.style.opacity = "1";
-          filterRef.current.setAttribute("scale", "0");
-        }
-        // Close with allowMorphBack=false so button appears without layoutId
-        setOpen(false);
-        console.log("🔥 Set open=false (allowMorphBack still false)");
-
-        // Re-enable morphing after button has rendered
-        setTimeout(() => {
-          setAllowMorphBack(true);
-          console.log("🔥 Set allowMorphBack=true (ready for next open)");
-        }, 100);
-      }
-    };
-
-    requestAnimationFrame(step);
-  };
+  });
 
   const handleClose = () => {
-    console.log("🔴 CLOSE CLICKED");
+    setAllowMorphBack(false);
     animateDissolve();
   };
 
@@ -137,28 +79,17 @@ function DepositButton() {
 
       <div ref={ref} className="flex items-center justify-center">
         <AnimatePresence mode="wait">
-          {!open ? (
+          {!isOpen ? (
             <motion.div
               key={allowMorphBack ? "morph" : "no-morph"}
               layoutId={allowMorphBack ? "deposit-wrapper" : undefined}
               initial={false}
               style={{ borderRadius: 6 }}
-              ref={(el) => {
-                if (el) {
-                  console.log("🟢 BUTTON RENDER", {
-                    key: allowMorphBack ? "morph" : "no-morph",
-                    layoutId: allowMorphBack ? "deposit-wrapper" : "none",
-                    allowMorphBack,
-                  });
-                }
-              }}
             >
               <Button
                 variant="outline"
                 onClick={() => {
-                  console.log("🟢 BUTTON CLICKED - opening");
-                  setIsClosing(false); // Reset for next morph animation
-                  setOpen(true);
+                  open();
                 }}
               >
                 <motion.span
@@ -172,11 +103,9 @@ function DepositButton() {
         </AnimatePresence>
       </div>
 
-      {/* Portal the opened card to document.body */}
-      {open &&
+      {isOpen &&
         createPortal(
           <div className="fixed inset-0 flex items-center justify-center z-50">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
               animate={{ opacity: 1, backdropFilter: "blur(5px)" }}
@@ -190,7 +119,6 @@ function DepositButton() {
               onClick={handleClose}
             />
 
-            {/* Card */}
             <motion.div
               layoutId={isClosing ? undefined : "deposit-wrapper"}
               className="w-96 h-[490px] border border-white/50 bg-background shadow-xs py-4 px-4 flex flex-col relative z-10"
@@ -201,30 +129,31 @@ function DepositButton() {
                 willChange: "transform, opacity",
               }}
               onClick={(e) => e.stopPropagation()}
-              ref={(el) => {
-                cardRef.current = el;
-                if (el) {
-                  console.log("🔵 CARD RENDER", {
-                    layoutId: isClosing ? "none" : "deposit-wrapper",
-                    isClosing,
-                  });
-                }
-              }}
+              ref={cardRef}
             >
-              <div className="flex items-center gap-1 mb-2">
-                <motion.span
-                  layoutId={isClosing ? undefined : "deposit-title"}
-                  className="text-sm font-medium"
+              <div className="flex items-start justify-between ">
+                <div className="flex items-center gap-1 mb-2">
+                  <motion.span
+                    layoutId={isClosing ? undefined : "deposit-title"}
+                    className="text-sm font-medium"
+                  >
+                    Deposit
+                  </motion.span>
+                  <span className="text-xs text-white/50">(USDC)</span>
+                </div>
+                <div
+                  className="absolute top-3 right-4 text-white/50 hover:text-white/80 cursor-pointer"
+                  onClick={handleClose}
                 >
-                  Deposit
-                </motion.span>
-                <span className="text-xs text-white/50">(USDC)</span>
+                  <XIcon className="w-4 h-4" />
+                </div>
+
+                {/* <span className="text-xs text-white/50">0x32..6789</span> */}
               </div>
 
-              {/* Animated Tab Bar */}
               <div className="relative w-full border-b border-white/10">
                 <div className="flex items-center justify-between">
-                  {tabs.map((tab) => (
+                  {DEPOSIT_TABS.map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
@@ -251,7 +180,6 @@ function DepositButton() {
                 </div>
               </div>
 
-              {/* Tab Content */}
               <div className="mt-3 flex-1 overflow-y-auto">
                 <AnimatePresence mode="wait">
                   <motion.div

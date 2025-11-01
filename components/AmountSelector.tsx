@@ -1,19 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-const PERCENTAGES = [
-  { label: "25%", value: 25 },
-  { label: "50%", value: 50 },
-  { label: "75%", value: 75 },
-  { label: "MAX", value: 100 },
-];
+import { PERCENTAGES } from "@/constants";
+import { useAmountInput } from "@/hooks/useAmountInput";
+import { calculatePercentageAmount } from "@/utils/calculations";
 
 export default function AmountSelector() {
   const [activePercentage, setActivePercentage] = useState(
     PERCENTAGES[0].label
   );
-  const [amount, setAmount] = useState("2.50");
+  const { amount, handleAmountChange, setAmountValue } = useAmountInput("2.50");
   const containerRef = useRef<HTMLDivElement>(null);
   const activeTabElementRef = useRef<HTMLButtonElement>(null);
 
@@ -42,18 +38,9 @@ export default function AmountSelector() {
     value: number;
   }) => {
     setActivePercentage(percentage.label);
-    // Calculate amount based on percentage (assuming base of 10.00)
     const baseAmount = 10.0;
-    const newAmount = ((baseAmount * percentage.value) / 100).toFixed(2);
-    setAmount(newAmount);
-  };
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Allow empty string, numbers, and decimal points
-    if (value === "" || /^\d*\.?\d*$/.test(value)) {
-      setAmount(value);
-    }
+    const newAmount = calculatePercentageAmount(baseAmount, percentage.value);
+    setAmountValue(newAmount);
   };
 
   return (

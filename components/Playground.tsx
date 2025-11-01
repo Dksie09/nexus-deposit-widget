@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button"; // adjust import if needed
-import { TextAnimate } from "./animatedText";
+import { TextAnimate } from "@/components/ui/animatedText";
 import DepositButton from "./DepositButton";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -12,7 +11,7 @@ interface PlaygroundProps {
 
 function Playground({ isWalletConnected }: PlaygroundProps) {
   return (
-    <div className="relative w-full h-96 mx-auto border mt-5 border-white/20 flex items-center justify-center">
+    <div className="relative w-full h-96 mx-auto mt-5 flex items-center justify-center">
       <div className="absolute inset-0 grid grid-cols-30 grid-rows-12 p-5">
         {Array.from({ length: 390 }).map((_, index) => (
           <div key={index} className="flex items-center justify-center">
@@ -23,7 +22,6 @@ function Playground({ isWalletConnected }: PlaygroundProps) {
         ))}
       </div>
 
-      {/* Button and text stacked vertically */}
       <div className="relative z-10 flex flex-col items-center gap-2">
         <AnimatePresence mode="wait">
           {isWalletConnected ? (

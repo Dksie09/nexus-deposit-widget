@@ -10,7 +10,6 @@ export default function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check if user has visited before
   useEffect(() => {
     const hasVisitedBefore = localStorage.getItem("hasConnectedWallet");
     if (hasVisitedBefore === "true") {
@@ -24,7 +23,6 @@ export default function Home() {
     localStorage.setItem("hasConnectedWallet", "true");
   };
 
-  // Don't render anything until we've checked localStorage
   if (isLoading) {
     return null;
   }
@@ -37,8 +35,8 @@ export default function Home() {
         </h1>
         <p className="text-base text-white/50 mt-5 max-w-lg">
           The Deposit component provides a simple, intuitive interface for users
-          to deposit tokens into the Avail Nexus network. It allows users to
-          select their preferred blockchain, choose a supported token, enter an
+          to deposit tokens cross-chain using Avail Nexus. It allows users to
+          select their preferred chain, choose a supported token, enter an
           amount, and confirm the transaction.
         </p>
         <AnimatePresence mode="popLayout">

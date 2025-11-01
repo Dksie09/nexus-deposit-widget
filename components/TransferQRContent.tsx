@@ -5,18 +5,20 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "./ui/input";
 import { InteractiveQRCode } from "./InteractiveQRCode";
+import { SUPPORTED_CHAINS, SUPPORTED_ASSETS } from "@/constants";
+import { useClipboard } from "@/hooks/useClipboard";
+import { BrandFooter } from "./shared/BrandFooter";
 
 function TransferQRContent() {
   const [chain, setChain] = useState("arbitrum");
   const [asset, setAsset] = useState("usdc");
-  const [copied, setCopied] = useState(false);
   const [isQRChanging, setIsQRChanging] = useState(false);
+  const { isCopied, copyToClipboard } = useClipboard();
 
   const depositAddress = "0x8370fcF840a3914765f24Be38f9763A30603b711";
 
@@ -36,13 +38,7 @@ function TransferQRContent() {
   }, [chain, asset, depositAddress]);
 
   const handleQRClick = async () => {
-    try {
-      await navigator.clipboard.writeText(depositAddress);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
+    await copyToClipboard(depositAddress);
   };
 
   return (
@@ -57,10 +53,11 @@ function TransferQRContent() {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="arbitrum">Arbitrum</SelectItem>
-                  <SelectItem value="base">Base</SelectItem>
-                  <SelectItem value="ethereum">Ethereum</SelectItem>
-                  <SelectItem value="polygon">Polygon</SelectItem>
+                  {SUPPORTED_CHAINS.map((chain) => (
+                    <SelectItem key={chain.value} value={chain.value}>
+                      {chain.label}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -74,9 +71,11 @@ function TransferQRContent() {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="usdc">USDC</SelectItem>
-                  <SelectItem value="usdt">USDT</SelectItem>
-                  <SelectItem value="eth">ETH</SelectItem>
+                  {SUPPORTED_ASSETS.map((asset) => (
+                    <SelectItem key={asset.value} value={asset.value}>
+                      {asset.label}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -86,7 +85,7 @@ function TransferQRContent() {
         <div className="flex flex-col items-center gap-2">
           <div className="h-4">
             <p className="text-xs text-white/70 transition-opacity duration-200 ease-out">
-              {copied ? "URL copied!" : "Scan using camera or wallet app"}
+              {isCopied ? "URL copied!" : "Scan using camera or wallet app"}
             </p>
           </div>
           <motion.button
@@ -117,9 +116,7 @@ function TransferQRContent() {
         </div>
       </div>
 
-      <div className="pt-4 border-t border-white/10">
-        <p className="text-xs text-white/40 text-center">powered by avail</p>
-      </div>
+      <BrandFooter />
     </div>
   );
 }
