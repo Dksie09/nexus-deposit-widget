@@ -8,9 +8,11 @@ interface UseDissolveAnimationOptions {
   onComplete?: () => void;
 }
 
-export function useDissolveAnimation(options: UseDissolveAnimationOptions = {}) {
+export function useDissolveAnimation(
+  options: UseDissolveAnimationOptions = {}
+) {
   const { duration = 800, maxScale = 2000, onComplete } = options;
-  
+
   const cardRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<SVGFEDisplacementMapElement>(null);
   const noiseRef = useRef<SVGFETurbulenceElement>(null);
@@ -46,13 +48,17 @@ export function useDissolveAnimation(options: UseDissolveAnimationOptions = {}) 
       if (t < 1) {
         requestAnimationFrame(step);
       } else {
-        // Reset styles
-        if (cardRef.current && filterRef.current) {
-          cardRef.current.style.transform = "scale(1)";
-          cardRef.current.style.opacity = "1";
-          filterRef.current.setAttribute("scale", "0");
-        }
+        // Call onComplete first to close the modal
         onComplete?.();
+
+        // Reset styles after a brief delay (after modal is unmounted)
+        setTimeout(() => {
+          if (cardRef.current && filterRef.current) {
+            cardRef.current.style.transform = "scale(1)";
+            cardRef.current.style.opacity = "1";
+            filterRef.current.setAttribute("scale", "0");
+          }
+        }, 50);
       }
     };
 
@@ -63,6 +69,6 @@ export function useDissolveAnimation(options: UseDissolveAnimationOptions = {}) 
     cardRef,
     filterRef,
     noiseRef,
-    animateDissolve
+    animateDissolve,
   };
 }

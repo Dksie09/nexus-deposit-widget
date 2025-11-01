@@ -9,14 +9,37 @@ import {
 } from "@/components/ui/select";
 import { ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
+import { Spinner } from "./ui/spinner";
+import { AnimatePresence, motion } from "motion/react";
+import { AnimatedCheckmark } from "./ui/animated-checkmark";
 import { SUPPORTED_FIAT_CURRENCIES } from "@/constants";
 import { useAmountInput } from "@/hooks/useAmountInput";
+import { useAsyncButton, type ButtonState } from "@/hooks/useAsyncButton";
 import { TransactionSummary } from "./shared/TransactionSummary";
 import { BrandFooter } from "./shared/BrandFooter";
+
+const getButtonContent = (state: ButtonState) => {
+  switch (state) {
+    case 'idle':
+      return (
+        <span className="inline-grid place-items-center">
+          <span className="col-start-1 row-start-1 transition-transform duration-200 ease-in-out group-hover:translate-x-full group-hover:opacity-0">
+            Proceed
+          </span>
+          <ArrowRight className="w-4 h-4 col-start-1 row-start-1 -translate-x-full opacity-0 transition-all duration-200 ease-in-out group-hover:translate-x-0 group-hover:opacity-100" />
+        </span>
+      );
+    case 'loading':
+      return <Spinner className="w-4 h-4" />;
+    case 'success':
+      return <AnimatedCheckmark />;
+  }
+};
 
 function FiatContent() {
   const [asset, setAsset] = useState("USD");
   const { amount, handleAmountChange } = useAmountInput("2.50");
+  const { buttonState, executeAsync } = useAsyncButton();
 
   const handleAssetChange = (value: string) => {
     setAsset(value);
@@ -62,13 +85,41 @@ function FiatContent() {
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Button className="w-full relative overflow-hidden group">
-          <span className="inline-grid place-items-center">
-            <span className="col-start-1 row-start-1 transition-transform duration-200 ease-in-out group-hover:translate-x-full group-hover:opacity-0">
-              Proceed
-            </span>
-            <ArrowRight className="w-4 h-4 col-start-1 row-start-1 -translate-x-full opacity-0 transition-all duration-200 ease-in-out group-hover:translate-x-0 group-hover:opacity-100" />
-          </span>
+        <Button 
+          className="w-full relative overflow-hidden group"
+          disabled={buttonState === "loading"}
+          onClick={() => executeAsync()}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+              initial={() => {
+                if (buttonState === 'loading') {
+                  // Blur in for spinner
+                  return { filter: "blur(4px)", opacity: 0 };
+                }
+                // Vertical slide for check/proceed
+                return { opacity: 0, y: -25 };
+              }}
+              animate={{ 
+                filter: "blur(0px)", 
+                opacity: 1, 
+                y: 0 
+              }}
+              exit={() => {
+                if (buttonState === 'idle') {
+                  // Blur out for arrow
+                  return { filter: "blur(4px)", opacity: 0 };
+                }
+                // Vertical slide for spinner/check
+                return { opacity: 0, y: 25 };
+              }}
+              key={buttonState}
+              className="flex items-center justify-center"
+            >
+              {getButtonContent(buttonState)}
+            </motion.div>
+          </AnimatePresence>
         </Button>
         <BrandFooter />
       </div>
