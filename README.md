@@ -1,6 +1,6 @@
-# Nexus Widget UI
+# Nexus Diposit Widget
 
-A modern, animated widget interface for cryptocurrency transactions with QR code support and real-time deposit tracking.
+A simple, modern and animated widget for Avail Nexus.
 
 ## Demo
 
@@ -10,23 +10,22 @@ https://github.com/user-attachments/assets/your-video-here.mp4
 
 ## Tech Stack
 
-- **Next.js 16** - React framework
-- **React 19** - UI library
-- **TypeScript** - Type safety
-- **Tailwind CSS 4** - Styling
-- **Motion** - Animations
-- **Radix UI** - Accessible components
-- **Lucide React** - Icons
+- Next.js
+- TypeScript
+- TailwindCSS v4
+- Motion
+- Shadcn/ui: button/ input/ select
+- Lucide React
 
 ## File Structure
 
 ```
 nexus-widget-ui/
-├── app/                    # Next.js app directory
-│   ├── layout.tsx         # Root layout
-│   ├── page.tsx           # Home page
-│   └── globals.css        # Global styles
-├── components/            # React components
+├── app/                  # app directory
+│   ├── layout.tsx        # Root layout
+│   ├── page.tsx          # Home page
+│   └── globals.css       # Global styles
+├── components/           # React components
 │   ├── ui/               # Reusable UI components
 │   ├── shared/           # Shared components
 │   └── *.tsx             # Feature components
@@ -38,30 +37,19 @@ nexus-widget-ui/
 
 ## Local Setup
 
-1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Dksie09/nexus-deposit-widget
    cd nexus-widget-ui
-   ```
-
-2. **Install dependencies**
-
-   ```bash
    npm install
-   ```
-
-3. **Run development server**
-
-   ```bash
    npm run dev
    ```
 
-4. **Open in browser**
+**Open in browser**
    ```
    http://localhost:3000
    ```
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - [LICENSE](LICENSE)
