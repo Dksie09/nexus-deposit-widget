@@ -15,16 +15,30 @@ import { useDissolveAnimation } from "@/hooks/useDissolveAnimation";
 function DepositButton() {
   const [activeTab, setActiveTab] = useState("wallet");
   const ref = useRef<HTMLDivElement>(null);
-  
-  const { isOpen, isClosing, allowMorphBack, open, close, setAllowMorphBack } = useModal();
-  const { cardRef, filterRef, noiseRef, animateDissolve } = useDissolveAnimation({
-    onComplete: () => {
-      close();
-      setTimeout(() => {
-        setAllowMorphBack(true);
-      }, 100);
+
+  const { isOpen, isClosing, allowMorphBack, open, close, setAllowMorphBack } =
+    useModal();
+  const { cardRef, filterRef, noiseRef, animateDissolve } =
+    useDissolveAnimation({
+      onComplete: () => {
+        close();
+        setTimeout(() => {
+          setAllowMorphBack(true);
+        }, 100);
+      },
+    });
+
+  const handleOpen = () => {
+    // Reset filter before opening to ensure clean morph animation
+    if (filterRef.current) {
+      filterRef.current.setAttribute("scale", "0");
     }
-  });
+    if (cardRef.current) {
+      cardRef.current.style.transform = "scale(1)";
+      cardRef.current.style.opacity = "1";
+    }
+    open();
+  };
 
   const handleClose = () => {
     setAllowMorphBack(false);
@@ -86,12 +100,7 @@ function DepositButton() {
               initial={false}
               style={{ borderRadius: 6 }}
             >
-              <Button
-                variant="outline"
-                onClick={() => {
-                  open();
-                }}
-              >
+              <Button variant="outline" onClick={handleOpen}>
                 <motion.span
                   layoutId={allowMorphBack ? "deposit-title" : undefined}
                 >

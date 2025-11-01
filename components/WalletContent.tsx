@@ -1,5 +1,5 @@
 "use client";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Check } from "lucide-react";
 import React from "react";
 import AmountSelector from "./AmountSelector";
 import { Button } from "./ui/button";
@@ -10,10 +10,22 @@ import { useAsyncButton, type ButtonState } from "@/hooks/useAsyncButton";
 import { TransactionSummary } from "./shared/TransactionSummary";
 import { BrandFooter } from "./shared/BrandFooter";
 
-const buttonCopy: Record<ButtonState, React.ReactNode> = {
-  idle: "Confirm",
-  loading: <Spinner className="w-4 h-4" />,
-  success: <AnimatedCheckmark />,
+const getButtonContent = (state: ButtonState) => {
+  switch (state) {
+    case "idle":
+      return (
+        <span className="inline-grid place-items-center">
+          <span className="col-start-1 row-start-1 transition-transform duration-200 ease-in-out group-hover:translate-x-full group-hover:opacity-0">
+            Confirm
+          </span>
+          <Check className="w-4 h-4 col-start-1 row-start-1 -translate-x-full opacity-0 transition-all duration-200 ease-in-out group-hover:translate-x-0 group-hover:opacity-100" />
+        </span>
+      );
+    case "loading":
+      return <Spinner className="w-4 h-4" />;
+    case "success":
+      return <AnimatedCheckmark />;
+  }
 };
 
 function WalletContent() {
@@ -40,20 +52,33 @@ function WalletContent() {
       </div>
       <div className="flex flex-col gap-2">
         <Button
-          className="w-full"
+          className="w-full relative overflow-hidden group"
           disabled={buttonState === "loading"}
           onClick={() => executeAsync()}
         >
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.span
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
               transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-              initial={{ opacity: 0, y: -25 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 25 }}
+              initial={
+                buttonState === "loading"
+                  ? { filter: "blur(4px)", opacity: 0 }
+                  : { opacity: 0, y: -25 }
+              }
+              animate={{
+                filter: "blur(0px)",
+                opacity: 1,
+                y: 0,
+              }}
+              exit={
+                buttonState === "idle"
+                  ? { filter: "blur(4px)", opacity: 0 }
+                  : { opacity: 0, y: 25 }
+              }
               key={buttonState}
+              className="flex items-center justify-center"
             >
-              {buttonCopy[buttonState]}
-            </motion.span>
+              {getButtonContent(buttonState)}
+            </motion.div>
           </AnimatePresence>
         </Button>
         <BrandFooter />

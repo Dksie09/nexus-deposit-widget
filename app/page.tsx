@@ -28,7 +28,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-10 font-sans max-w-3xl mx-auto">
+    <div className="flex flex-col min-h-screen px-10 py-5 font-sans max-w-3xl mx-auto">
       <div className=" w-full mx-auto px-4 pt-12 pb-6">
         <h1 className="font-instrument text-5xl font-medium leading">
           Deposit
@@ -66,6 +66,21 @@ export default function Home() {
         >
           <Playground isWalletConnected={isWalletConnected} />
         </motion.div>
+      )}
+      {isWalletConnected && (
+        <div className="my-10 ml-4">
+          <p className="text-sm text-white/50">
+            Designed by{" "}
+            <a
+              href="https://www.x.com/duckwhocodes"
+              target="_blank"
+              className="text-white/80 hover:text-white"
+            >
+              duckwhocodes
+            </a>
+            .
+          </p>
+        </div>
       )}
     </div>
   );
